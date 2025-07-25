@@ -1,0 +1,29 @@
+@page "/create-task"
+@rendermode InteractiveServer
+@inject IMediator _mediator
+
+<h1>Create Task</h1>
+<div>
+    <div>
+        <div>Title</div>
+        <div>
+            <input type="text" @bind-value="_viewModel!.Title" placeholder="Enter task title" />
+        </div>
+    </div>
+    <div>
+        <div>Detail</div>
+        <div>
+            <textarea @bind="_viewModel!.Description" placeholder="Enter task description"></textarea>
+        </div>
+    </div>
+    <button @onclick="_viewModel!.SubmitCreateTask">Create Task</button>
+</div>
+
+@code {
+    private CreateTaskViewModel? _viewModel;
+
+    protected override void OnInitialized()
+    {
+        _viewModel = new CreateTaskViewModel(_mediator);
+    }
+}
