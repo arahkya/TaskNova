@@ -1,0 +1,19 @@
+using Arahk.TaskNova.Lib.Domain;
+using MediatR;
+
+namespace Arahk.TaskNova.Lib.Application;
+
+public class GetAllTasksHandler : IRequestHandler<GetAllTasksQuery, IEnumerable<TaskEntity>>
+{
+    private readonly ITaskRepository _taskRepository;
+
+    public GetAllTasksHandler(ITaskRepository taskRepository)
+    {
+        _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+    }
+
+    public async Task<IEnumerable<TaskEntity>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
+    {
+        return await _taskRepository.GetAllTasksAsync();
+    }
+}

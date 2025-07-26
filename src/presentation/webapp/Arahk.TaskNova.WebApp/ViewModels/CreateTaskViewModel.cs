@@ -37,15 +37,24 @@ namespace Arahk.TaskNova.WebApp.ViewModels
             Entity.IsCompleted = false;
         }
 
-        public async Task SubmitCreateTask()
+        public async Task<bool> SubmitCreateTask()
         {
-            var isSuccess = await Mediator.Send(new CreateTaskRequest
+            try
             {
-                Title = Title,
-                Description = Description
-            });
+                var isSuccess = await Mediator.Send(new CreateTaskRequest
+                {
+                    Title = Title,
+                    Description = Description
+                });
 
-            Console.WriteLine($"Task creation {(isSuccess ? "succeeded" : "failed")}.");
+                Console.WriteLine($"Task creation {(isSuccess ? "succeeded" : "failed")}.");
+                return isSuccess;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Task creation failed with exception: {ex.Message}");
+                return false;
+            }
         }
     }
 }

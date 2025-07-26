@@ -1,0 +1,76 @@
+@inject IMediator _mediator
+@using Arahk.TaskNova.Lib.Application
+@using Arahk.TaskNova.Lib.Domain
+@using MediatR
+
+<div>
+    @if (isLoading)
+    {
+        <p><em>Loading tasks...</em></p>
+    }
+    else if (Tasks?.Any() == true)
+    {
+        <ul>
+            @foreach (var task in Tasks)
+            {
+                <li>
+                    <strong>@task.Title</strong>
+                    @if (!string.IsNullOrEmpty(task.Description))
+                    {
+                        <br /><span style="color: #666;">@task.Description</span>
+                    }
+            
+                        
+                    <br /><small>Created: @task.CreatedDate.ToString("MMM dd, yyyy HH:mm")</small>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p><em>No tasks found.</em></p>
+    }
+</div>
+
+@code {
+    public List<TaskEntity> Tasks { get; set; } = new List<TaskEntity>();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasksAsync();
+    }
+
+    private async Task LoadTasksAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var tasks = await _mediator.Send(new GetAllTasksQuery());
+            Tasks = tasks.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+            // You might want to show an error message to the user
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public async Task AddTask(Guid id, string taskTitle)
+    {
+        // Instead of just adding to the local list, we'll refresh from database
+        // This ensures we get the actual data including the correct ID from database
+        await LoadTasksAsync();
+        StateHasChanged();
+    }
+
+    public async Task RefreshTasks()
+    {
+        await LoadTasksAsync();
+        StateHasChanged();
+    }
+}
