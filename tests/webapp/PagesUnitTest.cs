@@ -9,6 +9,7 @@ public class PagesUnitTest(WebApplicationFactory<Program> factory) : IClassFixtu
 
     [Theory]
     [InlineData("/")]
+    [InlineData("/create-task")]
     public async Task Get_EndpointsReturnSuccessAndCorrectContentType(string url)
     {
         // Arrange
