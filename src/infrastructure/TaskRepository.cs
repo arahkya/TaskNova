@@ -14,7 +14,7 @@ public class TaskRepository(IUnitOfWork unitOfWork) : ITaskRepository
         return true;
     }
 
-    public Task<bool> DeleteTaskAsync(int taskId)
+    public Task<bool> DeleteTaskAsync(Guid taskId)
     {
         var dbContext = (TaskNovaDbContext)unitOfWork;
 
@@ -35,7 +35,7 @@ public class TaskRepository(IUnitOfWork unitOfWork) : ITaskRepository
         return Task.FromResult(dbContext.Tasks.AsEnumerable());
     }
 
-    public Task<TaskEntity> GetTaskByIdAsync(int taskId)
+    public Task<TaskEntity> GetTaskByIdAsync(Guid taskId)
     {
         var dbContext = (TaskNovaDbContext)unitOfWork;
 

@@ -1,5 +1,6 @@
 @inject IMediator _mediator
 @using Arahk.TaskNova.Lib.Application
+@using Arahk.TaskNova.Lib.Application.Task.DeleteTask
 @using Arahk.TaskNova.Lib.Domain
 @using MediatR
 
@@ -17,11 +18,13 @@
                     <strong>@task.Title</strong>
                     @if (!string.IsNullOrEmpty(task.Description))
                     {
-                        <br /><span style="color: #666;">@task.Description</span>
+                        <br />
+
+                        <span style="color: #666;">@task.Description</span>
                     }
-            
-                        
+
                     <br /><small>Created: @task.CreatedDate.ToString("MMM dd, yyyy HH:mm")</small>
+                    <button @onclick="() => DeleteTask(task.Id)">Delete</button>
                 </li>
             }
         </ul>
@@ -72,5 +75,19 @@
     {
         await LoadTasksAsync();
         StateHasChanged();
+    }
+
+    public async Task DeleteTask(Guid taskId)
+    {
+        try
+        {
+            await _mediator.Send(new DeleteTaskRequest { TaskId = taskId });
+            await LoadTasksAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+            // You might want to show an error message to the user
+        }
     }
 }
