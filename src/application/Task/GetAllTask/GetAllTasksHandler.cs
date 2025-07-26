@@ -1,7 +1,7 @@
 using Arahk.TaskNova.Lib.Domain;
 using MediatR;
 
-namespace Arahk.TaskNova.Lib.Application;
+namespace Arahk.TaskNova.Lib.Application.Task.GetAllTask;
 
 public class GetAllTasksHandler : IRequestHandler<GetAllTasksQuery, IEnumerable<TaskEntity>>
 {

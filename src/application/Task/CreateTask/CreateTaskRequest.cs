@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Arahk.TaskNova.Lib.Application;
+namespace Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
 public class CreateTaskRequest : IRequest<bool>
 {

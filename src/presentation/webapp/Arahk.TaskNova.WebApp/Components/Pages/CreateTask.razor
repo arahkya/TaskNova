@@ -1,5 +1,5 @@
 @page "/create-task"
-@using MediatR
+
 @rendermode InteractiveServer
 @inject IMediator _mediator
 
@@ -14,7 +14,7 @@
     <div>
         <textarea @bind="_viewModel!.Description" placeholder="Enter task description"></textarea>
     </div>
-    
+
     <button @onclick="HandleCreateTask">Create Task</button>
 </div>
 

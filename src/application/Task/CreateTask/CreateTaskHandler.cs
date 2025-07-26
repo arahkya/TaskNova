@@ -1,7 +1,7 @@
 ﻿using Arahk.TaskNova.Lib.Domain;
 using MediatR;
 
-namespace Arahk.TaskNova.Lib.Application;
+namespace Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
 public class CreateTaskHandler(IUnitOfWork unitOfWork, ITaskRepository taskRepository) : IRequestHandler<CreateTaskRequest, bool>
 {
