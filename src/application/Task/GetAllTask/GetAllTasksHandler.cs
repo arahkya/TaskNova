@@ -1,5 +1,5 @@
+using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Domain;
-using MediatR;
 
 namespace Arahk.TaskNova.Lib.Application.Task.GetAllTask;
 

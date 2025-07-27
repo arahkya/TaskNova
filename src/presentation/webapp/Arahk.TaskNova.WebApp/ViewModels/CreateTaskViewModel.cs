@@ -1,12 +1,11 @@
 using Arahk.TaskNova.Lib.Application.Task.CreateTask;
 using Arahk.TaskNova.Lib.Domain;
-using MediatR;
 
 namespace Arahk.TaskNova.WebApp.ViewModels
 {
     public class CreateTaskViewModel
     {
-        private readonly IMediator Mediator;
+        private readonly MyMediatr.MyMediatr MyMediatr;
         public TaskEntity Entity { get; set; } = new();
 
         public string Title
@@ -27,9 +26,9 @@ namespace Arahk.TaskNova.WebApp.ViewModels
         public DateTime CreateDate => Entity.CreatedDate;
         public bool IsCompleted => Entity.IsCompleted;
 
-        public CreateTaskViewModel(IMediator mediator)
+        public CreateTaskViewModel(MyMediatr.MyMediatr myMediatr)
         {
-            Mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            MyMediatr = myMediatr ?? throw new ArgumentNullException(nameof(myMediatr));
             Entity.Title = string.Empty;
             Entity.Description = string.Empty;
             Entity.Priority = 1; // Default priority
@@ -41,7 +40,7 @@ namespace Arahk.TaskNova.WebApp.ViewModels
         {
             try
             {
-                var isSuccess = await Mediator.Send(new CreateTaskRequest
+                var isSuccess = await MyMediatr.ExecuteAsync<CreateTaskRequest, bool>(new CreateTaskRequest
                 {
                     Title = Title,
                     Description = Description

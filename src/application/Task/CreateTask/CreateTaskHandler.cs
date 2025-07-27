@@ -1,9 +1,8 @@
 ﻿using Arahk.TaskNova.Lib.Domain;
-using MediatR;
 
 namespace Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
-public class CreateTaskHandler(IUnitOfWork unitOfWork, ITaskRepository taskRepository) : IRequestHandler<CreateTaskRequest, bool>
+public class CreateTaskHandler(IUnitOfWork unitOfWork, ITaskRepository taskRepository) : MyMediatr.IRequestHandler<CreateTaskRequest, bool>
 {
     public async Task<bool> Handle(CreateTaskRequest request, CancellationToken cancellationToken)
     {

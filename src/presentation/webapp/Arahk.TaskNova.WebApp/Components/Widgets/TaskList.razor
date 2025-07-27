@@ -1,4 +1,4 @@
-@inject IMediator _mediator
+@inject MyMediatr _mediator
 
 <div>
     @if (isLoading)
@@ -45,7 +45,7 @@
         try
         {
             isLoading = true;
-            var tasks = await _mediator.Send(new GetAllTasksQuery());
+            var tasks = await _mediator.ExecuteAsync<GetAllTasksQuery, IEnumerable<TaskEntity>>(new GetAllTasksQuery());
             Tasks = tasks.ToList();
         }
         catch (Exception ex)
@@ -77,7 +77,7 @@
     {
         try
         {
-            await _mediator.Send(new DeleteTaskRequest { TaskId = taskId });
+            await _mediator.ExecuteAsync<DeleteTaskRequest, bool>(new DeleteTaskRequest { TaskId = taskId });
             await LoadTasksAsync();
         }
         catch (Exception ex)

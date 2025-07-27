@@ -1,7 +1,7 @@
 @page "/create-task"
 
 @rendermode InteractiveServer
-@inject IMediator _mediator
+@inject MyMediatr _myMediatr
 
 <h1>Create Task</h1>
 <div>
@@ -28,7 +28,7 @@
 
     protected override void OnInitialized()
     {
-        _viewModel = new CreateTaskViewModel(_mediator);
+        _viewModel = new CreateTaskViewModel(_myMediatr);
     }
 
     private async Task HandleCreateTask()
