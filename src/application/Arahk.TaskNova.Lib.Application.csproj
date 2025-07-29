@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\domain\Arahk.TaskNova.Lib.Domain.csproj" />
     <ProjectReference Include="..\infrastructure\Arahk.TaskNova.Lib.Infrastructure.csproj" />
+    <ProjectReference Include="..\shared\mediatr\Arahk.MyMediatr.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -1,0 +1,52 @@
+@page "/create-task"
+
+@rendermode InteractiveServer
+@inject MyMediatr _myMediatr
+
+<h1>Create Task</h1>
+<div>
+    <div>Title</div>
+    <div>
+        <input type="text" @bind-value="_viewModel!.Title" placeholder="Enter task title" />
+    </div>
+
+    <div>Detail</div>
+    <div>
+        <textarea @bind="_viewModel!.Description" placeholder="Enter task description"></textarea>
+    </div>
+
+    <button @onclick="HandleCreateTask">Create Task</button>
+</div>
+
+<hr />
+
+<TaskList @ref="taskListComponent" />
+
+@code {
+    private CreateTaskViewModel? _viewModel;
+    private TaskList? taskListComponent;
+
+    protected override void OnInitialized()
+    {
+        _viewModel = new CreateTaskViewModel(_myMediatr);
+    }
+
+    private async Task HandleCreateTask()
+    {
+        if (_viewModel != null)
+        {
+            var success = await _viewModel.SubmitCreateTask();
+
+            if (success && taskListComponent != null)
+            {
+                // Instead of manually adding the task, refresh the entire list from database
+                // This ensures we get the actual data with correct IDs
+                await taskListComponent.RefreshTasks();
+
+                // Clear the form
+                _viewModel.Title = string.Empty;
+                _viewModel.Description = string.Empty;
+            }
+        }
+    }
+}

@@ -11,4 +11,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\domain\Arahk.TaskNova.Lib.Domain.csproj" />
+    <ProjectReference Include="..\..\..\application\Arahk.TaskNova.Lib.Application.csproj" />
+    <ProjectReference Include="..\..\..\infrastructure\Arahk.TaskNova.Lib.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\shared\mediatr\Arahk.MyMediatr.csproj" />
+  </ItemGroup>
+
 </Project>

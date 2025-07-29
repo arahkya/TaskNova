@@ -1,4 +1,8 @@
 using Arahk.TaskNova.WebApp.Components;
+using Arahk.TaskNova.Lib.Application;
+using Arahk.TaskNova.Lib.Infrastructure;
+using Arahk.MyMediatr;
+using Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 
 var app = builder.Build();
 
