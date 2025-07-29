@@ -1,21 +1,23 @@
-@page "/create-task"
+@page "/"
 
 @rendermode InteractiveServer
 @inject MyMediatr _myMediatr
 
 <h1>Create Task</h1>
-<div>
-    <div>Title</div>
-    <div>
-        <input type="text" @bind-value="_viewModel!.Title" placeholder="Enter task title" />
+<div class="col-4">
+    <label class="form-label">Title</label>
+    <div class="mb-3">
+        <input name="input-title" type="text" class="form-control" @bind-value="_viewModel!.Title"
+            placeholder="Enter task title" />
     </div>
 
-    <div>Detail</div>
+    <label class="form-label">Detail</label>
     <div>
-        <textarea @bind="_viewModel!.Description" placeholder="Enter task description"></textarea>
+        <input name="input-detail" @bind="_viewModel!.Description" class="form-control"
+            placeholder="Enter task description" />
     </div>
 
-    <button @onclick="HandleCreateTask">Create Task</button>
+    <button class="btn btn-success mt-4" @onclick="HandleCreateTask">Create Task</button>
 </div>
 
 <hr />

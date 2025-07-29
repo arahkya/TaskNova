@@ -20,8 +20,8 @@ public class CreateTaskTests : TestContext
 
         // Act
         var pageHeader = createTaskComponent.Find("h1");
-        var taskTitleInput = createTaskComponent.Find("input[type='text']");
-        var taskDescriptionInput = createTaskComponent.Find("textarea");
+        var taskTitleInput = createTaskComponent.Find("input[name='input-title']");
+        var taskDescriptionInput = createTaskComponent.Find("input[name='input-detail']");
         var createButton = createTaskComponent.Find("button");
 
         taskTitleInput.Change("New Task Title");
