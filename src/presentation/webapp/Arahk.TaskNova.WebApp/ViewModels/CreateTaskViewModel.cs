@@ -40,7 +40,7 @@ namespace Arahk.TaskNova.WebApp.ViewModels
         {
             try
             {
-                var isSuccess = await MyMediatr.ExecuteAsync<CreateTaskRequest, bool>(new CreateTaskRequest
+                var isSuccess = await MyMediatr.ExecuteWithValidateAsync<CreateTaskRequest, bool>(new CreateTaskRequest
                 {
                     Title = Title,
                     Description = Description
