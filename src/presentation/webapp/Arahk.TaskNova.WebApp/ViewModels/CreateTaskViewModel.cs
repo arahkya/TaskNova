@@ -1,3 +1,4 @@
+using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Application.Task.CreateTask;
 using Arahk.TaskNova.Lib.Domain;
 
@@ -36,24 +37,17 @@ namespace Arahk.TaskNova.WebApp.ViewModels
             Entity.IsCompleted = false;
         }
 
-        public async Task<bool> SubmitCreateTask()
+        public async Task<Response<bool>> SubmitCreateTask()
         {
-            try
+            var response = await MyMediatr.ExecuteWithValidateAsync<CreateTaskRequest, bool>(new CreateTaskRequest
             {
-                var isSuccess = await MyMediatr.ExecuteWithValidateAsync<CreateTaskRequest, bool>(new CreateTaskRequest
-                {
-                    Title = Title,
-                    Description = Description
-                });
+                Title = Title,
+                Description = Description
+            });
 
-                Console.WriteLine($"Task creation {(isSuccess ? "succeeded" : "failed")}.");
-                return isSuccess;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Task creation failed with exception: {ex.Message}");
-                return false;
-            }
+            Console.WriteLine($"Task creation {(response.IsSuccess ? "succeeded" : "failed")}.");
+
+            return response;
         }
     }
 }

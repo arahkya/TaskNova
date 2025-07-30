@@ -6,12 +6,24 @@ namespace Arahk.MyMediatr;
 
 public interface IRequestValidator<TRequest>
 {
-    Task<bool> ValidateAsync(TRequest request, CancellationToken cancellationToken);
+    Task<IEnumerable<ValidationResult>> ValidateAsync(TRequest request, CancellationToken cancellationToken);
 }
 
 public interface IRequestHandler<TRequest, TResult>
 {
     Task<TResult> Handle(TRequest request, CancellationToken cancellationToken);
+}
+
+public class Response<T>
+{
+    public T? Data { get; internal set; }
+    public IEnumerable<ValidationResult> Errors { get; internal set; }
+    public bool IsSuccess => !Errors.Any();
+
+    internal Response()
+    {
+        Errors = [];
+    }
 }
 
 public static class MyMediatrExtensions
@@ -88,23 +100,30 @@ public class MyMediatr(IServiceProvider serviceProvider)
         return handler.Handle(request, CancellationToken.None);
     }
 
-    public async Task<TResult> ExecuteWithValidateAsync<TRequest, TResult>(TRequest request)
+    public async Task<Response<TResult>> ExecuteWithValidateAsync<TRequest, TResult>(TRequest request)
         where TRequest : class
     {
         var validationContext = new ValidationContext(request);
         var validationResults = new List<ValidationResult>();
-        bool isValid = Validator.TryValidateObject(request, validationContext, validationResults, true);
+        var isValid = Validator.TryValidateObject(request, validationContext, validationResults, true);
 
         var customValidator = _serviceProvider.GetService<IRequestValidator<TRequest>>();
-        var isCustomValidateValid = await (customValidator?.ValidateAsync(request, CancellationToken.None) ?? Task.FromResult(false));
+        var customValidationResult = await (customValidator?.ValidateAsync(request, CancellationToken.None) ?? Task.FromResult(Enumerable.Empty<ValidationResult>()));
 
-        if (!isValid || !isCustomValidateValid)
+        var response = new Response<TResult>();
+
+        if (!isValid || customValidationResult.Any())
         {
-            throw new InvalidOperationException($"Validation failed for request of type {typeof(TRequest).Name}");
+            response.Errors = validationResults.Concat(customValidationResult);
+
+            return response;
         }
 
         var handler = _serviceProvider.GetService<IRequestHandler<TRequest, TResult>>() ?? throw new InvalidOperationException($"No handler registered for {typeof(TRequest).Name}");
+        var result = await handler.Handle(request, CancellationToken.None);
 
-        return await handler.Handle(request, CancellationToken.None);
+        response.Data = result;
+
+        return response;
     }
 }

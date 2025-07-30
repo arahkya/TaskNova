@@ -6,11 +6,20 @@ namespace Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
 public class CreateTaskValidator(ITaskRepository taskRepository) : IRequestValidator<CreateTaskRequest>
 {
-    public async Task<bool> ValidateAsync(CreateTaskRequest request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ValidationResult>> ValidateAsync(CreateTaskRequest request, CancellationToken cancellationToken)
     {
         var existedTask = await taskRepository.GetAllTasksAsync();
         var isDuplicate = existedTask.Any(p => p.Title == request.Title);
+        var validateResults = new List<ValidationResult>();
 
-        return await System.Threading.Tasks.Task.FromResult(!isDuplicate);
+        if (isDuplicate)
+        {
+            validateResults.Add(new ValidationResult(
+                "Task title already exists.",
+                [nameof(request.Title)]
+            ));
+        }
+
+        return await System.Threading.Tasks.Task.FromResult(validateResults);
     }
 }

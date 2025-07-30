@@ -4,21 +4,27 @@
 @inject MyMediatr _myMediatr
 
 <h1>Create Task</h1>
-<div class="col-4">
+
+<EditForm EditContext="@_editContext" OnSubmit="HandleCreateTask" class="col-4">
+
+    <DataAnnotationsValidator />
+
     <label class="form-label">Title</label>
     <div class="mb-3">
         <input name="input-title" type="text" class="form-control" @bind-value="_viewModel!.Title"
             placeholder="Enter task title" />
+        <ValidationMessage For="@(() => _viewModel!.Title)" />
     </div>
 
     <label class="form-label">Detail</label>
     <div>
         <input name="input-detail" @bind="_viewModel!.Description" class="form-control"
             placeholder="Enter task description" />
+        <ValidationMessage For="@(() => _viewModel!.Description)" />
     </div>
 
-    <button class="btn btn-success mt-4" @onclick="HandleCreateTask">Create Task</button>
-</div>
+    <button class="btn btn-success mt-4">Create Task</button>
+</EditForm>
 
 <hr />
 
@@ -27,19 +33,26 @@
 @code {
     private CreateTaskViewModel? _viewModel;
     private TaskList? taskListComponent;
+    private EditContext? _editContext;
+    private ValidationMessageStore? _validationMessageStore;
 
     protected override void OnInitialized()
     {
         _viewModel = new CreateTaskViewModel(_myMediatr);
+        _editContext = new EditContext(_viewModel);
+        _validationMessageStore = new ValidationMessageStore(_editContext);
     }
 
     private async Task HandleCreateTask()
     {
+        _validationMessageStore!.Clear();
+        _editContext!.NotifyValidationStateChanged();
+
         if (_viewModel != null)
         {
-            var success = await _viewModel.SubmitCreateTask();
+            var response = await _viewModel.SubmitCreateTask();
 
-            if (success && taskListComponent != null)
+            if (response.IsSuccess && taskListComponent != null)
             {
                 // Instead of manually adding the task, refresh the entire list from database
                 // This ensures we get the actual data with correct IDs
@@ -48,7 +61,19 @@
                 // Clear the form
                 _viewModel.Title = string.Empty;
                 _viewModel.Description = string.Empty;
+
+                _validationMessageStore!.Clear();
+                _editContext!.NotifyValidationStateChanged();
+
+                return;
             }
+
+            response.Errors!.ToList().ForEach(error =>
+            {
+                _validationMessageStore!.Add(new FieldIdentifier(_viewModel, error.MemberNames.First()), error.ErrorMessage!);
+            });
+
+            _editContext!.NotifyValidationStateChanged();
         }
     }
 }
