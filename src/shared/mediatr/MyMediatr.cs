@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arahk.MyMediatr;
@@ -87,19 +88,23 @@ public class MyMediatr(IServiceProvider serviceProvider)
         return handler.Handle(request, CancellationToken.None);
     }
 
-    public Task<TResult> ExecuteWithValidateAsync<TRequest, TResult>(TRequest request)
+    public async Task<TResult> ExecuteWithValidateAsync<TRequest, TResult>(TRequest request)
         where TRequest : class
     {
-        var validator = _serviceProvider.GetService<IRequestValidator<TRequest>>();
-        var isValid = validator?.ValidateAsync(request, CancellationToken.None).GetAwaiter().GetResult() ?? false;
+        var validationContext = new ValidationContext(request);
+        var validationResults = new List<ValidationResult>();
+        bool isValid = Validator.TryValidateObject(request, validationContext, validationResults, true);
 
-        if (!isValid)
+        var customValidator = _serviceProvider.GetService<IRequestValidator<TRequest>>();
+        var isCustomValidateValid = await (customValidator?.ValidateAsync(request, CancellationToken.None) ?? Task.FromResult(false));
+
+        if (!isValid || !isCustomValidateValid)
         {
             throw new InvalidOperationException($"Validation failed for request of type {typeof(TRequest).Name}");
         }
 
         var handler = _serviceProvider.GetService<IRequestHandler<TRequest, TResult>>() ?? throw new InvalidOperationException($"No handler registered for {typeof(TRequest).Name}");
 
-        return handler.Handle(request, CancellationToken.None);
+        return await handler.Handle(request, CancellationToken.None);
     }
 }
