@@ -1,7 +1,8 @@
 @page "/"
 
 @rendermode InteractiveServer
-@inject MyMediatr _myMediatr
+@inject MyMediatr.MyMediatr _myMediatr
+@inject NotifyHub notifyHub
 
 <h1>Create Task</h1>
 
@@ -52,18 +53,17 @@
         {
             var response = await _viewModel.SubmitCreateTask();
 
+            _viewModel.Title = string.Empty;
+            _viewModel.Description = string.Empty;
+
             if (response.IsSuccess && taskListComponent != null)
             {
-                // Instead of manually adding the task, refresh the entire list from database
-                // This ensures we get the actual data with correct IDs
                 await taskListComponent.RefreshTasks();
-
-                // Clear the form
-                _viewModel.Title = string.Empty;
-                _viewModel.Description = string.Empty;
 
                 _validationMessageStore!.Clear();
                 _editContext!.NotifyValidationStateChanged();
+
+                await notifyHub.SendMessage("USER0001", "A new task has been created successfully.");
 
                 return;
             }

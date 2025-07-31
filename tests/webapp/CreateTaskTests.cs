@@ -4,6 +4,7 @@ using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
 using Arahk.TaskNova.WebApp.Components.Pages;
+using Arahk.TaskNova.WebApp.Notification;
 
 namespace Arahk.TaskNova.WebApp.Test;
 
@@ -12,6 +13,7 @@ public class CreateTaskTests : TestContext
     [Fact]
     public async Task Test_CreateTask_ValidInput_CreatesTask()
     {
+        this.Services.AddSingleton<NotifyHub>();
         this.Services.AddApplicationServices();
         this.Services.AddInfrastructureServices();
 

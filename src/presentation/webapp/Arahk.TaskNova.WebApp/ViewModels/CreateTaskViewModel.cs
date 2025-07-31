@@ -1,28 +1,51 @@
+using System.ComponentModel;
 using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Application.Task.CreateTask;
 using Arahk.TaskNova.Lib.Domain;
 
 namespace Arahk.TaskNova.WebApp.ViewModels
 {
-    public class CreateTaskViewModel : IDomainEventHandler<TaskDomainEvent>
+    public class CreateTaskViewModel : INotifyPropertyChanged, IDomainEventHandler<TaskDomainEvent>
     {
         private readonly MyMediatr.MyMediatr MyMediatr;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public TaskEntity Entity { get; set; } = new();
+
+        public ICollection<TaskEntity> TaskEntities { get; set; } = [];
 
         public string Title
         {
             get => Entity.Title;
-            set => Entity.Title = value ?? string.Empty; // Ensure Title is never null   
+            set
+            {
+                Entity.Title = value ?? string.Empty; // Ensure Title is never null
+                OnPropertyChanged(nameof(Title));
+            }
         }
         public string Description
         {
             get => Entity.Description;
-            set => Entity.Description = value ?? string.Empty; // Ensure Description is never null
+            set
+            {
+                Entity.Description = value ?? string.Empty; // Ensure Description is never null
+                OnPropertyChanged(nameof(Description));
+            }
         }
         public int Priority
         {
             get => Entity.Priority;
-            set => Entity.Priority = value;
+            set
+            {
+                Entity.Priority = value;
+                OnPropertyChanged(nameof(Priority));
+            }
         }
         public DateTime CreateDate => Entity.CreatedDate;
         public bool IsCompleted => Entity.IsCompleted;
@@ -50,9 +73,9 @@ namespace Arahk.TaskNova.WebApp.ViewModels
             return response;
         }
 
-        public Task HandleAsync(TaskDomainEvent domainEvent)
+        public async Task HandleAsync(TaskDomainEvent domainEvent)
         {
-            return Task.Delay(1); // Placeholder for handling domain events
+            await Task.CompletedTask;
         }
     }
 }

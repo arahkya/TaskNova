@@ -3,6 +3,8 @@ using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
 using Arahk.TaskNova.WebApp.ViewModels;
 using Arahk.TaskNova.Lib.Domain;
+using Microsoft.AspNetCore.ResponseCompression;
+using Arahk.TaskNova.WebApp.Notification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +17,16 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 
 builder.Services.AddScoped<IDomainEventHandler<TaskDomainEvent>, CreateTaskViewModel>();
+builder.Services.AddSingleton<NotifyHub>();
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(options =>
+{
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        ["application/octet-stream"]);
+});
 
 var app = builder.Build();
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -32,8 +42,9 @@ else
 
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
+
+app.MapHub<NotifyHub>("/notify");
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
