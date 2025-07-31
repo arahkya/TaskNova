@@ -4,7 +4,7 @@ using Arahk.TaskNova.Lib.Domain;
 
 namespace Arahk.TaskNova.WebApp.ViewModels
 {
-    public class CreateTaskViewModel
+    public class CreateTaskViewModel : IDomainEventHandler<TaskDomainEvent>
     {
         private readonly MyMediatr.MyMediatr MyMediatr;
         public TaskEntity Entity { get; set; } = new();
@@ -48,6 +48,11 @@ namespace Arahk.TaskNova.WebApp.ViewModels
             Console.WriteLine($"Task creation {(response.IsSuccess ? "succeeded" : "failed")}.");
 
             return response;
+        }
+
+        public Task HandleAsync(TaskDomainEvent domainEvent)
+        {
+            return Task.Delay(1); // Placeholder for handling domain events
         }
     }
 }

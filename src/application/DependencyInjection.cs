@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddMyMediatr(typeof(DependencyInjection).Assembly);
         services.AddScoped<DomainEventDispatcher>();
+
         services.AddScoped<IDomainEventHandler<TaskDomainEvent>, CreateTaskHandler>();
 
         return services;

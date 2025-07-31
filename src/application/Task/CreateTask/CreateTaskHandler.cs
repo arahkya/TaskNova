@@ -24,6 +24,6 @@ public class CreateTaskHandler(IServiceProvider serviceProvider, IUnitOfWork uni
 
     public System.Threading.Tasks.Task HandleAsync(TaskDomainEvent domainEvent)
     {
-        throw new NotImplementedException();
+        return System.Threading.Tasks.Task.Delay(1); // Placeholder for handling domain events
     }
 }

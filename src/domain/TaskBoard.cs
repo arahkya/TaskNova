@@ -27,8 +27,7 @@ public class TaskBoardEntity(IServiceProvider serviceProvider, ITaskRepository t
         {
             DomainEvents.Add(new TaskDomainEvent("Task title already exists.", task));
 
-            serviceProvider.GetRequiredService<DomainEventDispatcher>()
-                            .DispatchAsync(DomainEvents).GetAwaiter().GetResult();
+            await serviceProvider.GetRequiredService<DomainEventDispatcher>().DispatchAsync(DomainEvents);
 
             return false;
         }
@@ -48,8 +47,7 @@ public class TaskBoardEntity(IServiceProvider serviceProvider, ITaskRepository t
                 DomainEvents.Add(new TaskDomainEvent("Failed to save changes after task creation.", task));
             }
 
-            serviceProvider.GetRequiredService<DomainEventDispatcher>()
-                .DispatchAsync(DomainEvents).GetAwaiter().GetResult();
+            await serviceProvider.GetRequiredService<DomainEventDispatcher>().DispatchAsync(DomainEvents);
         }
 
         return isCreated;

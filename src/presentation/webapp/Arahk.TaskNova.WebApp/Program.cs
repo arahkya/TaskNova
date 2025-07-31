@@ -1,8 +1,8 @@
 using Arahk.TaskNova.WebApp.Components;
 using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
-using Arahk.MyMediatr;
-using Arahk.TaskNova.Lib.Application.Task.CreateTask;
+using Arahk.TaskNova.WebApp.ViewModels;
+using Arahk.TaskNova.Lib.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +13,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
+
+builder.Services.AddScoped<IDomainEventHandler<TaskDomainEvent>, CreateTaskViewModel>();
 
 var app = builder.Build();
 

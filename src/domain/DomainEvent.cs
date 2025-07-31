@@ -1,6 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Arahk.TaskNova.Lib.Domain;
 
-public interface IDomainEventHandler<TDomainEvent>
+public interface IDomainEventHandler<in TDomainEvent>
 {
     Task HandleAsync(TDomainEvent domainEvent);
 }
@@ -11,24 +13,22 @@ public class DomainEventDispatcher(IServiceProvider serviceProvider)
 
     public async Task DispatchAsync<TEntity>(IEnumerable<DomainEvent<TEntity>> domainEvents)
     {
+        var tasks = new List<Task>();
+
         foreach (var domainEvent in domainEvents)
         {
-            var handler = _serviceProvider.GetService(typeof(IDomainEventHandler<TaskDomainEvent>)) as IDomainEventHandler<TaskDomainEvent>;
+            var handlers = _serviceProvider.GetServices<IDomainEventHandler<TaskDomainEvent>>().ToList() ?? [];
 
-            if (handler == null)
+            handlers.ForEach(handler =>
             {
-                throw new InvalidOperationException($"No handler registered for domain event type {typeof(TEntity).Name}");
-            }
-
-            await handler.HandleAsync(domainEvent as TaskDomainEvent);
-
-            // var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent!.GetType());
-
-            // if (_serviceProvider.GetService(handlerType) is IDomainEventHandler<DomainEvent<TEntity>> handler)
-            // {
-            //     await handler.HandleAsync(domainEvent);
-            // }
+                if (handler != null && domainEvent is TaskDomainEvent taskDomainEvent)
+                {
+                    tasks.Add(handler.HandleAsync(taskDomainEvent));
+                }
+            });
         }
+
+        await Task.WhenAll(tasks);
     }
 }
 
