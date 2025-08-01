@@ -2,7 +2,8 @@
 
 namespace Arahk.TaskNova.Lib.Application.Task.CreateTask;
 
-public class CreateTaskHandler(IUnitOfWork unitOfWork, ITaskRepository taskRepository) : MyMediatr.IRequestHandler<CreateTaskRequest, bool>
+public class CreateTaskHandler(IServiceProvider serviceProvider, IUnitOfWork unitOfWork, ITaskRepository taskRepository)
+    : MyMediatr.IRequestHandler<CreateTaskRequest, bool>, IDomainEventHandler<TaskDomainEvent>
 {
     public async Task<bool> Handle(CreateTaskRequest request, CancellationToken cancellationToken)
     {
@@ -14,12 +15,15 @@ public class CreateTaskHandler(IUnitOfWork unitOfWork, ITaskRepository taskRepos
             Priority = request.Priority
         };
 
-        var isCreateSuccess = await taskRepository.CreateTaskAsync(taskEntity);
-        if (isCreateSuccess)
-        {
-            isCreateSuccess = await unitOfWork.SaveChangesAsync() > 0;
-        }
+        var taskBoard = new TaskBoardEntity(serviceProvider, taskRepository, unitOfWork);
+
+        var isCreateSuccess = await taskBoard.CreateTaskAsync(taskEntity);
 
         return isCreateSuccess;
+    }
+
+    public System.Threading.Tasks.Task HandleAsync(TaskDomainEvent domainEvent)
+    {
+        return System.Threading.Tasks.Task.Delay(1); // Placeholder for handling domain events
     }
 }

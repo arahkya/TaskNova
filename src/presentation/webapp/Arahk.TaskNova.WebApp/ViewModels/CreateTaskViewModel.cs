@@ -1,27 +1,51 @@
+using System.ComponentModel;
+using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Application.Task.CreateTask;
 using Arahk.TaskNova.Lib.Domain;
 
 namespace Arahk.TaskNova.WebApp.ViewModels
 {
-    public class CreateTaskViewModel
+    public class CreateTaskViewModel : INotifyPropertyChanged, IDomainEventHandler<TaskDomainEvent>
     {
         private readonly MyMediatr.MyMediatr MyMediatr;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public TaskEntity Entity { get; set; } = new();
+
+        public ICollection<TaskEntity> TaskEntities { get; set; } = [];
 
         public string Title
         {
             get => Entity.Title;
-            set => Entity.Title = value ?? string.Empty; // Ensure Title is never null   
+            set
+            {
+                Entity.Title = value ?? string.Empty; // Ensure Title is never null
+                OnPropertyChanged(nameof(Title));
+            }
         }
         public string Description
         {
             get => Entity.Description;
-            set => Entity.Description = value ?? string.Empty; // Ensure Description is never null
+            set
+            {
+                Entity.Description = value ?? string.Empty; // Ensure Description is never null
+                OnPropertyChanged(nameof(Description));
+            }
         }
         public int Priority
         {
             get => Entity.Priority;
-            set => Entity.Priority = value;
+            set
+            {
+                Entity.Priority = value;
+                OnPropertyChanged(nameof(Priority));
+            }
         }
         public DateTime CreateDate => Entity.CreatedDate;
         public bool IsCompleted => Entity.IsCompleted;
@@ -36,24 +60,22 @@ namespace Arahk.TaskNova.WebApp.ViewModels
             Entity.IsCompleted = false;
         }
 
-        public async Task<bool> SubmitCreateTask()
+        public async Task<Response<bool>> SubmitCreateTask()
         {
-            try
+            var response = await MyMediatr.ExecuteWithValidateAsync<CreateTaskRequest, bool>(new CreateTaskRequest
             {
-                var isSuccess = await MyMediatr.ExecuteAsync<CreateTaskRequest, bool>(new CreateTaskRequest
-                {
-                    Title = Title,
-                    Description = Description
-                });
+                Title = Title,
+                Description = Description
+            });
 
-                Console.WriteLine($"Task creation {(isSuccess ? "succeeded" : "failed")}.");
-                return isSuccess;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Task creation failed with exception: {ex.Message}");
-                return false;
-            }
+            Console.WriteLine($"Task creation {(response.IsSuccess ? "succeeded" : "failed")}.");
+
+            return response;
+        }
+
+        public async Task HandleAsync(TaskDomainEvent domainEvent)
+        {
+            await Task.CompletedTask;
         }
     }
 }

@@ -4,6 +4,7 @@ using Arahk.MyMediatr;
 using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
 using Arahk.TaskNova.WebApp.Components.Pages;
+using Arahk.TaskNova.WebApp.Notification;
 
 namespace Arahk.TaskNova.WebApp.Test;
 
@@ -12,6 +13,7 @@ public class CreateTaskTests : TestContext
     [Fact]
     public async Task Test_CreateTask_ValidInput_CreatesTask()
     {
+        this.Services.AddSingleton<NotifyHub>();
         this.Services.AddApplicationServices();
         this.Services.AddInfrastructureServices();
 
@@ -20,8 +22,8 @@ public class CreateTaskTests : TestContext
 
         // Act
         var pageHeader = createTaskComponent.Find("h1");
-        var taskTitleInput = createTaskComponent.Find("input[type='text']");
-        var taskDescriptionInput = createTaskComponent.Find("textarea");
+        var taskTitleInput = createTaskComponent.Find("input[name='input-title']");
+        var taskDescriptionInput = createTaskComponent.Find("input[name='input-detail']");
         var createButton = createTaskComponent.Find("button");
 
         taskTitleInput.Change("New Task Title");
