@@ -3,8 +3,12 @@ using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
 using Arahk.TaskNova.WebApp.ViewModels;
 using Arahk.TaskNova.Lib.Domain;
+using Arahk.TaskNova.WebApp.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Arahk.TaskNova.WebApp.Notification;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<AuthenticationStateProvider, TaskNovaAuthenticationStateProvider>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 
@@ -51,6 +58,19 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Arahk.TaskNova.WebApp.Client._Imports).Assembly);
+
+app.MapGet("/logout", async hld =>
+{
+    var authStateProvider = hld.RequestServices.GetRequiredService<AuthenticationStateProvider>();
+    var authState = await authStateProvider.GetAuthenticationStateAsync();
+    var name = authState.User.Identity?.Name;
+    
+    if (string.IsNullOrEmpty(name)) return;
+
+    await ((TaskNovaAuthenticationStateProvider)authStateProvider).RemoveAuthenticationStateAsync(name);
+    
+    hld.Response.Redirect("/login");
+});
 
 app.Run();
 

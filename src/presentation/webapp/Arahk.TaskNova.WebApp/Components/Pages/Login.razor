@@ -1,0 +1,49 @@
+@page "/Login"
+@using Arahk.TaskNova.WebApp.Identity
+@rendermode InteractiveServer
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Login</h3>
+
+<div class="co-4">
+    <EditForm FormName="mylogin" EditContext="@_editContext" OnSubmit="HandleLogin" class="form-control">
+        <DataAnnotationsValidator />
+        
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" @bind-value="_loginViewModel!.Username" />
+            <ValidationMessage For="@(() => _loginViewModel!.Username)" />
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" @bind-value="_loginViewModel!.Password"/>
+            <ValidationMessage For="@(() => _loginViewModel!.Password)" />
+        </div>
+        <button class="btn btn-primary mt-3">Login</button>
+    </EditForm>
+</div>
+
+@code {
+    private EditContext? _editContext;
+    private LoginViewModel? _loginViewModel;
+
+    protected override void OnInitialized()
+    {
+        _loginViewModel = new LoginViewModel();
+        _editContext = new EditContext(_loginViewModel);
+    }
+
+    private async Task HandleLogin()
+    {
+        var user = UserService.GetByEmail(_loginViewModel!.Username);
+
+        if (user!.Password == _loginViewModel.Password)
+        {
+            await ((TaskNovaAuthenticationStateProvider)AuthenticationStateProvider).UpdateAuthenticationStateAsync(user);
+            
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}
