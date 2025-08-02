@@ -1,12 +1,12 @@
 @page "/task/create"
 
 @rendermode InteractiveServer
-@inject MyMediatr.MyMediatr _myMediatr
-@inject NotifyHub notifyHub
+@inject MyMediatr.MyMediatr MyMediatr
+@inject NotifyHub NotifyHub
 
 <h1>Create Task</h1>
 
-<EditForm EditContext="@_editContext" OnSubmit="HandleCreateTask" class="col-4">
+<EditForm FormName="CreateTask" EditContext="@_editContext" OnSubmit="HandleCreateTask" class="col-4">
 
     <DataAnnotationsValidator />
 
@@ -39,7 +39,7 @@
 
     protected override void OnInitialized()
     {
-        _viewModel = new CreateTaskViewModel(_myMediatr);
+        _viewModel = new CreateTaskViewModel(MyMediatr);
         _editContext = new EditContext(_viewModel);
         _validationMessageStore = new ValidationMessageStore(_editContext);
     }
@@ -63,7 +63,7 @@
                 _validationMessageStore!.Clear();
                 _editContext!.NotifyValidationStateChanged();
 
-                await notifyHub.SendMessage("USER0001", "A new task has been created successfully.");
+                await NotifyHub.SendMessage("USER0001", "A new task has been created successfully.");
 
                 return;
             }

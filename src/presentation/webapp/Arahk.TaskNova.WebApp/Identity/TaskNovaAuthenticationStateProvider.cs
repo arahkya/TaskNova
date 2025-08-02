@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace Arahk.TaskNova.WebApp.Identity;
 
-public class TaskNovaAuthenticationStateProvider(UserService userService, ProtectedSessionStorage sessionStorage) : AuthenticationStateProvider
+public class TaskNovaAuthenticationStateProvider(UserService userService) : AuthenticationStateProvider
 {
     private readonly ClaimsPrincipal _anonymous = new (new ClaimsIdentity());
     
@@ -23,7 +23,8 @@ public class TaskNovaAuthenticationStateProvider(UserService userService, Protec
 
                 new Claim(ClaimTypes.Name, userSession.Email),
                 new Claim(ClaimTypes.NameIdentifier, userSession.Email),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new Claim(ClaimTypes.Role, userSession.Role),
+                new Claim("connectionId", userSession.ConnectionId ?? string.Empty)
             ], "TaskNova");
 
             return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
@@ -50,6 +51,18 @@ public class TaskNovaAuthenticationStateProvider(UserService userService, Protec
         }
         
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+    }
+    
+    public async Task UpdateConnectionIdAsync(string name, string? connectionId)
+    {
+        var userAccount = await UserService.GetSessionAsync(name);
+        
+        if (userAccount == null)
+        {
+            return;
+        }
+        
+        userAccount.ConnectionId = connectionId;
     }
     
     public async Task RemoveAuthenticationStateAsync(string name)

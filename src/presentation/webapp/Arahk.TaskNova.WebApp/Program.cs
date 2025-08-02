@@ -3,12 +3,10 @@ using Arahk.TaskNova.Lib.Application;
 using Arahk.TaskNova.Lib.Infrastructure;
 using Arahk.TaskNova.WebApp.ViewModels;
 using Arahk.TaskNova.Lib.Domain;
+using Arahk.TaskNova.WebApp.Components.Notification;
 using Arahk.TaskNova.WebApp.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
-using Arahk.TaskNova.WebApp.Notification;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +16,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<AuthenticationStateProvider, TaskNovaAuthenticationStateProvider>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<AuthenticationStateProvider, TaskNovaAuthenticationStateProvider>();
+builder.Services.AddSingleton<UserService>();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 

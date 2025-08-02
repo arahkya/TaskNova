@@ -1,22 +1,34 @@
+using Arahk.TaskNova.WebApp.Identity;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Arahk.TaskNova.WebApp.Notification;
+namespace Arahk.TaskNova.WebApp.Components.Notification;
 
-public class NotifyHub : Hub
+public class NotifyHub(AuthenticationStateProvider authenticationStateProvider) : Hub
 {
-    private string _connectionid;
-
+    private readonly TaskNovaAuthenticationStateProvider _authenticationStateProvider = (TaskNovaAuthenticationStateProvider)authenticationStateProvider;
+    
     public async Task SendMessage(string user, string message)
     {
-        await Clients.Client(_connectionid).SendAsync("ReceiveMessage", user, message);
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var connectionId = authState.User.Claims.FirstOrDefault(c => c.Type == "connectionId")?.Value;
+        
+        await Clients.Client(connectionId!).SendAsync("ReceiveMessage", user, message);
     }
 
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
-
-        _connectionid = Context.ConnectionId;
-
-        // var userid = Context.User?.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? string.Empty;
+            
+        await _authenticationStateProvider.UpdateConnectionIdAsync("", Context.ConnectionId);
+        
+        System.Diagnostics.Debug.WriteLine($"Connected: {Context.ConnectionId}");
+    }
+    
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await base.OnDisconnectedAsync(exception);
+        
+        System.Diagnostics.Debug.WriteLine($"Disconnected: {Context.ConnectionId}, Exception: {exception?.Message}");
     }
 }

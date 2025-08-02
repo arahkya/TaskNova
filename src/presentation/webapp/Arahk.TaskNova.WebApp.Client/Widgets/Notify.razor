@@ -1,47 +1,41 @@
 @rendermode InteractiveWebAssembly
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
 <div class="notify-container @_activeClass">
-    @message
+    @_message
 </div>
 
 @code {
     private string _activeClass = "";
 
-    private HubConnection? hubConnection;
+    private HubConnection? _hubConnection;
 
-    private string message = "Hello World!";
-
-    protected override async Task OnInitializedAsync()
+    private string _message = "Hello World!";
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        hubConnection = new HubConnectionBuilder()
-        .WithUrl(Navigation.ToAbsoluteUri("/notify"))
-        @* .WithUrl(Navigation.ToAbsoluteUri("/notify"), options =>
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/notify"))
+            .Build();
+        
+        _hubConnection.On<string, string>("ReceiveMessage", async (topic, msg) =>
         {
-            options.AccessTokenProvider = async () =>
-    {
-            return await
-    Task.FromResult("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30");
-        };
-        }) *@
-        .Build();
-
-        hubConnection.On
-        <string, string>("ReceiveMessage", (topic, msg) =>
-        {
-            message = $"{topic}: {msg}";
+            _message = $"{topic}: {msg}";
             _activeClass = "active";
+            
+            await JsRuntime.InvokeVoidAsync("console.log", msg); 
+            await InvokeAsync(StateHasChanged);
 
-            InvokeAsync(StateHasChanged);
-
-            Task.Delay(3000).ContinueWith(_ =>
-    {
-            _activeClass = "";
-            InvokeAsync(StateHasChanged);
+            await Task.Delay(3000).ContinueWith(_ =>
+            {
+                _activeClass = "";
+                InvokeAsync(StateHasChanged);
+            });
         });
-        });
-
-        await hubConnection.StartAsync();
+        
+        await _hubConnection.StartAsync();
     }
+
 }
